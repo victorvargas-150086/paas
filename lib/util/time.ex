@@ -35,7 +35,13 @@ defmodule Antikythera.Time do
 
   Only `Antikythera.IsoTimestamp.t` can be converted.
   """
-  defun new(s :: v[IsoTimestamp.t]) :: R.t(t), do: from_iso_timestamp(s)
+  defun new(s :: term) :: R.t(t) do
+    cond do
+      valid?(s)              -> {:ok, s}
+      IsoTimestamp.valid?(s) -> from_iso_timestamp(s)
+      true                   -> {:error, {:invalid_value, [__MODULE__]}}
+    end
+  end
 
   defun truncate_to_day(   {__MODULE__, date, {_   , _     , _     }, _} :: t) :: t, do: {__MODULE__, date, {0   , 0     , 0     }, 0}
   defun truncate_to_hour(  {__MODULE__, date, {hour, _     , _     }, _} :: t) :: t, do: {__MODULE__, date, {hour, 0     , 0     }, 0}
